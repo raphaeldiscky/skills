@@ -8,37 +8,29 @@ Before implementing:
 
 - State your assumptions explicitly. If uncertain, ask.
 - If multiple interpretations exist, present them - don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
+- Flag alternatives that avoid irreversible changes, security risks, broad refactors, or substantial rework; explain evidence and tradeoffs in 2–4 bullets. Continue with a reasonable requested approach. Pause for a decision before unresolved security risks, irreversible changes, or substantial rework.
 - If something is unclear, stop. Name what's confusing. Ask.
 
 ## 2. Research Established Approaches
 
-**Research before reinventing the wheel. Show what others have learned.**
+**Research before reinventing.**
 
-When our task has established solutions, research relevant company practices, scientific findings, industry standards, and technical articles before proposing an implementation.
-
-- Present **2–4 relevant approaches** when meaningful alternatives exist. Use concrete examples: “Company X documents this approach…” or “This research proposes…”
-- For each approach, briefly explain **how it works, its tradeoffs, and how it fits our task**, with a direct source link.
-- Prefer primary sources: company engineering publications, official standards and documentation, and original research papers. Use credible technical articles for additional context.
-- Verify what sources actually support. Distinguish a company’s documented practice, a formal standard, research findings, and your own inference.
-- Check current guidance alongside established evidence. Recommend the approach that fits our requirements, scale, and constraints; explain why.
-- Keep research proportional to the task. Do not force multiple options for trivial changes or copy a large company’s complexity without justification.
-
-**We do not have to reinvent the wheel. Prefer a proven solution when it fits, and explain any reason to depart from it.**
+- For complex features or unfamiliar problems, check current research and established industry practices.
+- Cite concrete examples from primary sources—how a company solves it or a published method we can reuse—and explain fit and tradeoffs.
+- Recommend what to reuse or adapt; distinguish established evidence, experimental findings, and your own inference. Skip routine edits.
 
 ## 3. Simple, Complete, Maintainable
 
-**Choose the simplest design that fully meets the requirements and remains easy to understand, test, operate, and change.**
+**Implement required behavior and necessary safeguards.**
 
-- Optimize for clarity and manageable complexity. Fewer lines or a smaller diff do not justify sacrificing correctness, security, reliability, or maintainability.
-- Implement required behavior completely. Do not substitute stubs, hardcoded shortcuts, silent failures, or disabled checks for a working solution.
-- Use established design patterns, **proven, actively maintained libraries**, and sound repository conventions where they fit the problem. Verify maintenance status before introducing a dependency. Explain significant design choices and their tradeoffs. Prefer straightforward code when an additional pattern would add complexity without a clear benefit.
-- Use cohesive modules, clear responsibilities, and appropriate interfaces to reduce coupling. Abstractions are justified when they isolate dependencies, protect invariants, improve testability, or encapsulate likely changes—even with a single caller.
-- Handle realistic failure modes and validate inputs at relevant boundaries. Base decisions to omit defensive handling on enforced contracts or verified invariants, not assumptions that failures are impossible.
-- Design for stated workloads and agreed growth requirements. Identify relevant scaling limits without introducing speculative frameworks, extension points, or distributed infrastructure.
-- Keep scope focused. Simplify unnecessary complexity while preserving the structure and safeguards needed for a maintainable solution.
+- Propose additional features or configuration before adding them.
+- Base architecture on stated workloads, scale, resource limits, and growth requirements.
+- Use appropriate design patterns, domain terminology, clear file and folder names, and project conventions.
+- When third-party libraries are needed, choose proven, actively maintained options and follow version-specific official documentation.
+- Handle realistic failures; omit checks only when enforced contracts make them unnecessary.
+- Preserve correctness, performance, readability, and maintainability.
 
-Ask yourself: “Is this solution complete and easy for another engineer to maintain, or merely quick to write?”
+Ask yourself: “Is this complete, maintainable, and free of unnecessary complexity?”
 
 ## 4. Surgical Changes
 
@@ -70,7 +62,7 @@ Transform tasks into verifiable goals:
 - "Fix the bug" → "Write a test that reproduces it, then make it pass"
 - "Refactor X" → "Ensure tests pass before and after"
 
-For multi-step tasks, state a brief plan:
+For each plan, state what it will deliver, what is out of scope, and how success will be verified.
 
 ```
 1. [Step] → verify: [check]
