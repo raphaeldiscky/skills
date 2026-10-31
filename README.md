@@ -1,6 +1,6 @@
 # Agent Rules and Skills
 
-Reusable rules and skills for AI coding agents.
+My collection of rules and skills for AI coding agents.
 
 Choose the rules and workflows that fit your project, then load them through your
 agent's supported instruction or skill mechanism.
@@ -55,13 +55,16 @@ See the [official Claude Code instructions and rules documentation](https://code
 - GitHub workflow rules assume Git and the authenticated `gh` CLI are available.
 - Stacked PR rules use the `github/gh-stack` extension; setup is included in that rule.
 - Worktree rules require `copy-worktree-env` on your `PATH`. The helper is not
-  included in this repository.
+  included in this collection.
 
 ## Skills
 
-Skills provide reusable workflows for particular tasks. `.agents/skills/` is
-reserved for future skills; no skills are included yet.
+Skills provide reusable workflows for particular tasks.
 
-Each skill will live in `.agents/skills/<skill-name>/SKILL.md`, with supporting
+| Skill | Covers |
+| --- | --- |
+| [Architecture decision records](.agents/skills/adr/SKILL.md) | Create, update, and explain ADRs using project conventions. |
+
+Each skill lives in `.agents/skills/<skill-name>/SKILL.md`, with supporting
 resources only when needed. Skill discovery and installation depend on the agent.
 For one example, see the [Codex skill documentation](https://developers.openai.com/codex/skills).
