@@ -26,17 +26,19 @@ When our task has established solutions, research relevant company practices, sc
 
 **We do not have to reinvent the wheel. Prefer a proven solution when it fits, and explain any reason to depart from it.**
 
-## 3. Simplicity First
+## 3. Simple, Complete, Maintainable
 
-**Minimum code that solves the problem. Nothing speculative.**
+**Choose the simplest design that fully meets the requirements and remains easy to understand, test, operate, and change.**
 
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
+- Optimize for clarity and manageable complexity. Fewer lines or a smaller diff do not justify sacrificing correctness, security, reliability, or maintainability.
+- Implement required behavior completely. Do not substitute stubs, hardcoded shortcuts, silent failures, or disabled checks for a working solution.
+- Use established design patterns, **proven, actively maintained libraries**, and sound repository conventions where they fit the problem. Verify maintenance status before introducing a dependency. Explain significant design choices and their tradeoffs. Prefer straightforward code when an additional pattern would add complexity without a clear benefit.
+- Use cohesive modules, clear responsibilities, and appropriate interfaces to reduce coupling. Abstractions are justified when they isolate dependencies, protect invariants, improve testability, or encapsulate likely changes—even with a single caller.
+- Handle realistic failure modes and validate inputs at relevant boundaries. Base decisions to omit defensive handling on enforced contracts or verified invariants, not assumptions that failures are impossible.
+- Design for stated workloads and agreed growth requirements. Identify relevant scaling limits without introducing speculative frameworks, extension points, or distributed infrastructure.
+- Keep scope focused. Simplify unnecessary complexity while preserving the structure and safeguards needed for a maintainable solution.
 
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+Ask yourself: “Is this solution complete and easy for another engineer to maintain, or merely quick to write?”
 
 ## 4. Surgical Changes
 
@@ -44,8 +46,8 @@ Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, sim
 
 When editing existing code:
 
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
+- Don't make unrelated changes to adjacent code, comments, or formatting.
+- Refactor nearby code when necessary to implement the requested change correctly and maintainably. Keep it focused and explain its purpose.
 - Match existing style, even if you'd do it differently.
 - If you notice unrelated dead code, mention it - don't delete it.
 
@@ -59,6 +61,8 @@ The test: Every changed line should trace directly to the user's request.
 ## 5. Goal-Driven Execution
 
 **Define success criteria. Loop until verified.**
+
+Verify required behavior, realistic failure cases, and relevant nonfunctional requirements using checks appropriate to the change. Report anything that remains unverified.
 
 Transform tasks into verifiable goals:
 
