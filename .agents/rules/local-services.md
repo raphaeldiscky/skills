@@ -6,3 +6,5 @@ tunnels and port-forwards. Run long-lived ones in the background.
 - Before starting one, check whether I already have it running on that port, and reuse it if so.
 - When the task is done, stop every service you started and say which ones.
 - Never stop a service you didn't start.
+- Other agents may share the machine: pick free ports, and a unique debugger or inspector port per worktree,
+  rather than assuming a default is free.
