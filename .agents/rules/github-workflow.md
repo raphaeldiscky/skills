@@ -22,15 +22,11 @@ for the end. I want to track the work step by step and revert any one step on it
 ## PR assignee
 
 Assign every PR you open to the authenticated user. Pass `--assignee @me` to
-`gh pr create`, and check each PR `gh stack submit` opens.
+`gh pr create`, and check each PR `gh stack submit` opens. To fix an existing PR, see PR edits.
 
 ## PR edits
 
-Use the GitHub REST API to update PR titles and bodies:
-
 ```bash
-# Update PR title and body
-gh api repos/{owner}/{repo}/pulls/{number} --method PATCH \
-  -f title="..." \
-  -f body="..."
+gh pr edit <n> --title "..." --body "..."
+gh pr edit <n> --add-assignee @me
 ```

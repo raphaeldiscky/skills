@@ -13,7 +13,7 @@ Choose the topics you want to adopt:
 | Rule | Covers |
 | --- | --- |
 | [Engineering principles](.agents/rules/engineering-principles.md) | Research, complete and maintainable design, appropriate patterns, dependency usage, and verification. |
-| [GitHub workflow](.agents/rules/github-workflow.md) | Commit identity and cadence, PR creation and assignment, and REST-based PR edits. |
+| [GitHub workflow](.agents/rules/github-workflow.md) | Commit identity and cadence, PR creation and assignment, and PR edits with `gh pr edit`. |
 | [Stacked PRs](.agents/rules/stacked-prs.md) | Structure and manage dependent PRs with gh-stack. |
 | [Git worktrees](.agents/rules/git-worktrees.md) | Copy ignored environment files before development in a worktree. |
 | [Local services](.agents/rules/local-services.md) | Reuse existing services and clean up services started during a task. |
