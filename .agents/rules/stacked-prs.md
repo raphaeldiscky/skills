@@ -27,7 +27,8 @@ git config rerere.enabled true            # remember conflict resolutions
 git config remote.pushDefault origin      # skip remote picker
 ```
 
-**Core workflow** (always pass branch names + `--auto` so nothing prompts):
+**Core workflow** (always pass branch names + `--auto` so nothing prompts). Each layer is a branch, so the user
+approves the stack plan before `gh stack init` or `gh stack add` creates any:
 
 ```bash
 gh stack init layer-1            # create+checkout the bottom branch (base: main)
