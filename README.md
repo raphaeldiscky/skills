@@ -54,8 +54,8 @@ See the [official Claude Code instructions and rules documentation](https://code
 
 - GitHub workflow rules assume Git and the authenticated `gh` CLI are available.
 - Stacked PR rules use the `github/gh-stack` extension; setup is included in that rule.
-- Worktree rules require `copy-worktree-env` on your `PATH`. The helper is not
-  included in this collection.
+- Worktree rules work with any way of copying ignored files; a helper such as
+  `copy-worktree-env` is optional and not included in this collection.
 
 ## Skills
 

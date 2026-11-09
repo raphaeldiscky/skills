@@ -1,22 +1,18 @@
 # Git worktrees: copy the env files
 
-A worktree only materialises **tracked** files, and `.env*`, `.dev.vars`, `*.pem` and `*.key`
-are gitignored — so a new worktree starts with none of them. DB-dependent `:test-local` suites
-then silently skip, and worker apps have no `.dev.vars` at all.
+A worktree only materialises **tracked** files, and `.env*`, `*.pem` and `*.key` are gitignored —
+so a new worktree starts with none of them, and tests or apps that need them fail or silently skip.
 
-Always run `copy-worktree-env` from inside every newly created worktree before development, tests, builds, or local services. When entering an existing linked worktree, verify that it has already run successfully; if that is not established, run it before proceeding. Do not assume environment files were copied automatically.
-
-After creating a worktree, run `copy-worktree-env` from inside it:
+Before development, tests, builds, or local services in a new worktree, copy every gitignored env and
+secret file from the main worktree. When entering an existing linked worktree, verify the copy already
+happened; if that is not established, do it before proceeding. Do not assume the files were copied automatically.
 
 ```bash
 git fetch origin
 git worktree add ../<name> -b <branch> origin/main
-cd ../<name> && copy-worktree-env
 ```
 
-`copy-worktree-env` (`~/.local/bin`) works in any git repo: it copies every gitignored env
-file from the main worktree, skips tracked ones like `.env.example` (the checkout already has
-them at this branch's version), and sets `rerere.enabled` + `remote.pushDefault` for gh-stack.
+Use a copy helper if you have one (for example a `copy-worktree-env` script on your `PATH`).
 
-- **Never hand-write a partial `.env` instead** — the copy also brings every app's `.dev.vars`.
-- It worked only if the run ends with `Copied: N files` and exit 0.
+- **Never hand-write a partial `.env` instead** — copy the real files.
+- Confirm the copy succeeded (exit status, files copied) before relying on it.
