@@ -17,6 +17,7 @@ Choose the topics you want to adopt:
 | [Stacked PRs](.agents/rules/stacked-prs.md) | Structure and manage dependent PRs with gh-stack, after the user approves the stack plan. |
 | [Git worktrees](.agents/rules/git-worktrees.md) | Create worktrees and branches only when approved, and copy ignored environment files into a worktree. |
 | [Local services](.agents/rules/local-services.md) | Reuse existing services, pick free ports, and clean up services started during a task. |
+| [Waiting](.agents/rules/waiting.md) | Estimate how long a wait should take, cap every polling loop, and stop and report when the estimate passes. |
 
 These files are a reusable library. Keeping them in `.agents/rules/` does not
 install them into an agent or make every agent load them automatically.
