@@ -30,7 +30,7 @@ Preserve existing identifiers, filenames, and links. Do not renumber records or 
 4. Draft a concise record. Write when the user's request or approval authorizes it; do not ask again for the same authorization. If only discussing a possible ADR or presenting a plan, present the draft without creating files.
 5. Update the index and directly affected existing documentation using project conventions. Link to detailed specifications or procedures rather than duplicating them.
 
-For a past decision, mark the record as retrospective and distinguish its recording date from the original decision date. Use history as evidence when available; leave the original date unknown when it cannot be established.
+For a past decision, mark the record as retrospective and distinguish its recording date from the original decision date. Use history as evidence when available; leave the original date unknown when it cannot be established. Record the recording date in History when it differs from the decision date or the decision date is unknown.
 
 ## Default Template
 
@@ -64,6 +64,10 @@ Chosen approach and rationale, or the proposal awaiting a decision.
 - Benefits:
 - Costs and limitations:
 - Risks and mitigations:
+
+## History
+
+- YYYY-MM-DD: Status change, correction, or supersession, and why.
 ```
 
 Default index:
@@ -91,7 +95,7 @@ Follow existing lifecycle conventions. The default is:
 proposed → accepted → deprecated or superseded
 ```
 
-- Mark a decision accepted only when agreement or project evidence supports it.
-- Correct factual errors with a dated history note while preserving the original decision's context.
+- Mark a decision accepted only when agreement or project evidence supports it. Add a dated History entry for each status change.
+- Correct factual errors with a dated History entry while preserving the original decision's context.
 - When a decision is replaced, create a new record and link both records; mark the old one superseded.
 - Mark a decision deprecated when it no longer applies and has no replacement.
