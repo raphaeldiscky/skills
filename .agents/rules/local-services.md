@@ -8,3 +8,5 @@ tunnels and port-forwards. Run long-lived ones in the background.
 - Never stop a service you didn't start.
 - Other agents may share the machine: pick free ports, and a unique debugger or inspector port per worktree,
   rather than assuming a default is free.
+- A shared local stack (containers, a database, fixed ports) belongs to one worktree at a time; other worktrees run
+  only tests that need none of it.
