@@ -65,6 +65,7 @@ Skills provide reusable workflows for particular tasks.
 | Skill | Covers | Use when |
 | --- | --- | --- |
 | [Architecture decision records](.agents/skills/adr/SKILL.md) | Create, update, and explain ADRs using project conventions. | You ask to record a decision, ask why an architectural choice was made, or make a significant architecture, dependency, data, contract, infrastructure, or security choice worth recording. |
+| [Untangle codebase](.agents/skills/untangle-codebase/SKILL.md) | Whole-codebase structural refactor that removes hidden links, needless links, surplus and special cases, and asks before changing anything outside the repo depends on. | You explicitly invoke it. It never runs on its own (`disable-model-invocation: true`). |
 
 Each skill lives in `.agents/skills/<skill-name>/SKILL.md`, with supporting
 resources only when needed. Add a row to this table when you add a skill. Skill discovery and installation depend on the agent.
