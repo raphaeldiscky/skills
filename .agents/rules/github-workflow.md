@@ -23,6 +23,8 @@ for the end. I want to track the work step by step and revert any one step on it
 
 - Work on the current branch. Don't create a branch or worktree without the user's approval.
 - One worktree = one branch = one task. Report unrelated findings; don't fix them there.
+- Before planning a new feature, `git fetch origin`. If the branch is behind `origin/main`, say so and plan against
+  `origin/main` (read changed files with `git show origin/main:<path>`).
 - After the user approves a new feature's plan, before any code: with a clean tree (if it is dirty, stop and say
   so), run `git fetch origin && git merge origin/main` into the current branch and resolve conflicts then. Don't
   rebase for this: merging rewrites no history, so no force-push is needed. Stacked PRs follow the stacked PRs rule.
