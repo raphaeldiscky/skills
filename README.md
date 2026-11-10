@@ -62,10 +62,10 @@ See the [official Claude Code instructions and rules documentation](https://code
 
 Skills provide reusable workflows for particular tasks.
 
-| Skill | Covers |
-| --- | --- |
-| [Architecture decision records](.agents/skills/adr/SKILL.md) | Create, update, and explain ADRs using project conventions. |
+| Skill | Covers | Use when |
+| --- | --- | --- |
+| [Architecture decision records](.agents/skills/adr/SKILL.md) | Create, update, and explain ADRs using project conventions. | You ask to record a decision, ask why an architectural choice was made, or make a significant architecture, dependency, data, contract, infrastructure, or security choice worth recording. |
 
 Each skill lives in `.agents/skills/<skill-name>/SKILL.md`, with supporting
-resources only when needed. Skill discovery and installation depend on the agent.
+resources only when needed. Add a row to this table when you add a skill. Skill discovery and installation depend on the agent.
 For one example, see the [Codex skill documentation](https://developers.openai.com/codex/skills).
