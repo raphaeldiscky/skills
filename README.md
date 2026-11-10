@@ -22,13 +22,26 @@ Choose the topics you want to adopt:
 These files are a reusable library. Keeping them in `.agents/rules/` does not
 install them into an agent or make every agent load them automatically.
 
-### Using the rules
+## Skills
+
+Skills provide reusable workflows for particular tasks.
+
+| Skill | Covers | Use when |
+| --- | --- | --- |
+| [Architecture decision records](.agents/skills/adr/SKILL.md) | Create, update, and explain ADRs using project conventions. | You ask to record a decision, ask why an architectural choice was made, or make a significant architecture, dependency, data, contract, infrastructure, or security choice worth recording. |
+| [Untangle codebase](.agents/skills/untangle-codebase/SKILL.md) | Whole-codebase structural refactor that removes hidden links, needless links, surplus and special cases, and asks before changing anything outside the repo depends on. | You explicitly invoke it. It never runs on its own (`disable-model-invocation: true`). |
+
+Each skill lives in `.agents/skills/<skill-name>/SKILL.md`, with supporting
+resources only when needed. Add a row to this table when you add a skill. Skill discovery and installation depend on the agent.
+For one example, see the [Codex skill documentation](https://developers.openai.com/codex/skills).
+
+## Using the rules
 
 Follow your agent's instructions for loading project-level or user-level rules.
 Append selected rules to existing instructions rather than replacing the whole
 configuration. The following are setup examples for two agents.
 
-#### Codex
+### Codex
 
 Copy the contents of selected rule files into your project's `AGENTS.md`, or into
 `~/.codex/AGENTS.md` to apply them across projects. Append the selected rules to
@@ -36,7 +49,7 @@ existing instructions rather than replacing the whole file.
 
 See the [official AGENTS.md documentation](https://developers.openai.com/codex/guides/agents-md).
 
-#### Claude Code
+### Claude Code
 
 Copy selected rule files into `.claude/rules/` for one project, or into
 `~/.claude/rules/` to apply them across projects.
@@ -51,22 +64,9 @@ import selected rules from your root `CLAUDE.md`, for example:
 
 See the [official Claude Code instructions and rules documentation](https://code.claude.com/docs/en/memory).
 
-### Prerequisites
+## Prerequisites
 
 - GitHub workflow rules assume Git and the authenticated `gh` CLI are available.
 - Stacked PR rules use the `github/gh-stack` extension; setup is included in that rule.
 - Worktree rules work with any way of copying ignored files; a helper such as
   `copy-worktree-env` is optional and not included in this collection.
-
-## Skills
-
-Skills provide reusable workflows for particular tasks.
-
-| Skill | Covers | Use when |
-| --- | --- | --- |
-| [Architecture decision records](.agents/skills/adr/SKILL.md) | Create, update, and explain ADRs using project conventions. | You ask to record a decision, ask why an architectural choice was made, or make a significant architecture, dependency, data, contract, infrastructure, or security choice worth recording. |
-| [Untangle codebase](.agents/skills/untangle-codebase/SKILL.md) | Whole-codebase structural refactor that removes hidden links, needless links, surplus and special cases, and asks before changing anything outside the repo depends on. | You explicitly invoke it. It never runs on its own (`disable-model-invocation: true`). |
-
-Each skill lives in `.agents/skills/<skill-name>/SKILL.md`, with supporting
-resources only when needed. Add a row to this table when you add a skill. Skill discovery and installation depend on the agent.
-For one example, see the [Codex skill documentation](https://developers.openai.com/codex/skills).
