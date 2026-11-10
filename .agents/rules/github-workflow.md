@@ -23,6 +23,10 @@ for the end. I want to track the work step by step and revert any one step on it
 
 - Work on the current branch. Don't create a branch or worktree without the user's approval.
 - One worktree = one branch = one task. Report unrelated findings; don't fix them there.
+- Flow is trunk-based: one short-lived branch per worktree, cut from `origin/main`, one PR, squash-merged. No long-lived
+  `develop` or `release/*` branches. Hotfixes branch from a release tag, and the user approves that worktree first.
+- Parallel agents: at most 3 writing at once. Before starting another, list the files each will touch; the sets must
+  not overlap. Lockfiles, workspace files, generated code and API specs have one owner at a time. Merge PRs one at a time.
 - Before planning a new feature, `git fetch origin`. If the branch is behind `origin/main`, say so and plan against
   `origin/main` (read changed files with `git show origin/main:<path>`).
 - After the user approves a new feature's plan, before any code: with a clean tree (if it is dirty, stop and say
