@@ -151,15 +151,18 @@ Then with the fixes:
   - `ui/toolbar.test.tsx` and `ui/menu.test.tsx` test the same actions separately.
 ```
 
-The same format outside the UI:
+The same format in a Go backend:
 
 ```md
-- Move per-tenant discounts into tenant settings that pricing reads, so the tenant branch goes. This adds persisted data, so it needs the user's approval.
-  - `api/orders.ts:44` has `if (tenant === "acme")` for a custom discount.
-- Give `orders` one owner module that exposes the active orders, so billing and reports stop repeating the cancelled-order filter.
-  - `billing/invoice.ts:18` and `reports/revenue.ts:30` both read the `orders` table, each with its own filter for cancelled orders.
-- Send email, SMS and push through one `Notifier` that owns retries, and retry only sends that are safe to repeat.
-  - `email/send.ts`, `sms/send.ts` and `push/send.ts` call sites each wrap the send in their own retry, and only some are safe to repeat.
-- Read config once at startup into a typed settings object and pass it in, keeping the env var name unchanged.
-  - `jobs/export.ts:12` reads `process.env.EXPORT_BUCKET` deep inside the job.
+- Wire dependencies in one composition root (`cmd/serve.go`) and pass config and the database pool through constructors, so the env read and the global both go. The env var name stays the same.
+  - `internal/service/export.go:12` calls `os.Getenv("EXPORT_BUCKET")` inside the export job.
+  - `internal/repository/db.go:9` keeps the pool in a package-level variable that `main.go` must set before anything else runs.
+- Move per-brand discounts into brand data looked up from a registry, so shared code stops branching on the brand.
+  - `internal/service/pricing.go:44` has `if brandID == "acme"` for a custom discount.
+- Make `order-service` the only owner of orders and publish order changes as events into local read models, so the other services stop reading its schema. The new event is an outward contract, so it needs the user's approval.
+  - `billing-service/internal/repository/invoice_pg.go:18` and `report-service/internal/repository/revenue_pg.go:30` both query `orders.orders`, each with its own filter for cancelled orders.
+- Let the queue consumer own retries: each task handler returns an error marked retriable or not, and sends are deduplicated by message ID, so the loops and sleeps go.
+  - `internal/task/send_email.go:40`, `send_sms.go:35` and `send_push.go:28` each retry three times with `time.Sleep`, and only the email send is safe to repeat.
+- Use the concrete S3 client until a second store exists, so the interface goes.
+  - `internal/storage/blob.go:8` defines a `BlobStore` interface with one implementation and no second in sight.
 ```
