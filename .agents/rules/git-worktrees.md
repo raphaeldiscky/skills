@@ -1,8 +1,8 @@
-# Git worktrees: only when approved, and copy the env files
+# Git worktrees: create only when approved, and copy the env files
 
-Do not create a worktree or branch on your own. Work in the worktree and branch you are in, also for a fix, an
-experiment, a review or a stack layer. If one is needed, ask the user and wait for approval. Approval of a stack
-plan covers its layers. Never delete a worktree or branch: the user removes workspaces, unless they ask you to.
+Do not create a worktree on your own. Work in the worktree you are in, also for a fix, an experiment, a review
+or a stack layer. If a new one is needed, ask the user and wait for approval. Creating a branch needs no
+approval. Never delete a worktree or branch: the user removes workspaces, unless they ask you to.
 
 A worktree only materialises **tracked** files, and `.env*`, `*.pem` and `*.key` are gitignored —
 so a new worktree starts with none of them, and tests or apps that need them fail or silently skip.

@@ -21,7 +21,8 @@ for the end. I want to track the work step by step and revert any one step on it
 
 ## Branches and syncing main
 
-- Work on the current branch. Don't create a branch or worktree without the user's approval.
+- Work on the current branch, and create another branch when the task needs one. Don't create a worktree
+  without the user's approval.
 - One worktree = one branch = one task. Report unrelated findings; don't fix them there.
 - Before planning a new feature, `git fetch origin`. If the branch is behind `origin/main`, say so and plan against
   `origin/main` (read changed files with `git show origin/main:<path>`).
