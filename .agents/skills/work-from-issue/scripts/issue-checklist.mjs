@@ -263,21 +263,68 @@ export function addNote(line, text) {
   return `${it.lead}[${it.checked ? "x" : " "}] ${withoutMarker(it)} _${text}_${marker}`;
 }
 
-// Inserts a new top-level item after the section's last item, or under its heading when it has none.
-export function addItem(body, section, text) {
+const GROUP = /^### (.*)$/;
+const blank = (l) => l.replace(/\r$/, "").trim() === "";
+
+// The last non-blank line in [from, to).
+function lastFilled(lines, from, to) {
+  for (let i = to - 1; i >= from; i--) if (!blank(lines[i])) return i;
+  return from;
+}
+
+// A new item at the end of the section, or of its ### group (made at the end of the section when missing).
+export function addItem(body, section, text, group = null) {
   if (!text) throw new Refusal("add needs --text");
   const items = parseItems(body);
-  const inSection = items.filter((it) => it.section === section);
-  const heading = parseSections(body)[section];
-  const after = inSection.length ? inSection.at(-1).index : heading?.index;
-  if (after === undefined) throw new Refusal("the issue has no such section");
-  const probe = { index: -1, section, heading: heading?.title ?? "", name: heading?.name ?? "" };
+  const heading = items.sections[section];
+  if (!heading) throw new Refusal("the issue has no such section");
+  const lines = body.split("\n");
+  const end = items.sections[section + 1]?.index ?? lines.length;
+  const probe = { index: -1, section, heading: heading.title, name: heading.name };
   const code = assignCodes(items, [probe]).get(-1);
   const line = `- [ ] \`${code}\` ${normalize(text)}`;
+  const cr = lines[heading.index].endsWith("\r") ? "\r" : "";
+  let insert;
+  let created = false;
+  if (group) {
+    const want = normalize(group).toLowerCase();
+    const groups = [];
+    for (let i = heading.index + 1; i < end; i++) {
+      const m = GROUP.exec(lines[i].replace(/\r$/, ""));
+      if (m) groups.push({ index: i, title: normalize(m[1]) });
+    }
+    const hit = groups.find((g) => g.title.toLowerCase() === want);
+    if (hit) {
+      const next = groups.find((g) => g.index > hit.index)?.index ?? end;
+      insert = { after: lastFilled(lines, hit.index, next), add: [line] };
+      if (insert.after === hit.index) insert.add = ["", line];
+    } else {
+      created = true;
+      insert = { after: lastFilled(lines, heading.index, end), add: ["", `### ${normalize(group)}`, "", line] };
+    }
+  } else {
+    const inSection = items.filter((it) => it.section === section);
+    insert = inSection.length
+      ? { after: inSection.at(-1).index, add: [line] }
+      : { after: heading.index, add: [line] };
+  }
+  lines.splice(insert.after + 1, 0, ...insert.add.map((l) => l + cr));
+  return { body: lines.join("\n"), line, code, created };
+}
+
+// A new "## L. Name" section at the end of the issue; the letter is given or picked from the name.
+export function addSection(body, name, letter = null) {
+  if (!name) throw new Refusal("section needs --name");
+  const items = parseItems(body);
+  const taken = new Set([...sectionLetters(items).values(), ...items.filter((it) => it.code).map((it) => splitCode(it.code).letter)]);
+  const want = letter?.toUpperCase() ?? pickLetter(name, taken);
+  if (!/^[A-Z]{1,2}$/.test(want)) throw new Refusal(`"${letter}" is not a section letter`);
+  if (taken.has(want)) throw new Refusal(`letter ${want} is already used in this issue`);
   const lines = body.split("\n");
-  const cr = lines[after].endsWith("\r") ? "\r" : "";
-  lines.splice(after + 1, 0, line + cr);
-  return { body: lines.join("\n"), line, code };
+  const after = lastFilled(lines, 0, lines.length);
+  const line = `## ${want}. ${normalize(name)}`;
+  lines.splice(after + 1, lines.length - after - 1, "", line);
+  return { body: lines.join("\n"), line, letter: want };
 }
 
 export function codeAll(body) {
@@ -499,7 +546,9 @@ Read (prints one short line per item; never read the issue body yourself):
 Write:
   ids                                   code every item (\`D3\`) and letter every section heading (## D. Title)
   check                                 where the issue departs from the layout in format.md (exit 1 if anywhere)
-  add --section S --text T              a new item at the end of section S (letter or heading words)
+  add --section S [--group G] --text T  a new item at the end of section S (letter or heading words), or of its
+                                        ### group G, which is made at the end of the section if missing
+  section --name N [--letter L]         a new "## L. N" section at the end of the issue
   claim [--takeover]                    take an item (takeover only after the user agrees)
   pr --number N                         link the item's PR
   release                               give the item back
@@ -525,6 +574,9 @@ export async function main(argv, env = process.env, gh = null, settleMs = 3000) 
       note: { type: "string" },
       text: { type: "string" },
       section: { type: "string" },
+      group: { type: "string" },
+      name: { type: "string" },
+      letter: { type: "string" },
       status: { type: "string" },
       grep: { type: "string" },
       limit: { type: "string" },
@@ -666,12 +718,28 @@ export async function main(argv, env = process.env, gh = null, settleMs = 3000) 
       issue,
       (body) => {
         const section = findSection(parseItems(body), values.section);
-        added = addItem(body, section, values.text);
+        added = addItem(body, section, values.text, values.group ?? null);
         return { body: added.body, done: (b) => lineSet(b).has(added.line), result: added.code };
       },
       { ...opts, show: () => console.log(`+ ${cut(added.line, opts.width)}`) },
     );
-    console.log(`${opts.dryRun ? "would add" : "added"} ${added.code}`);
+    const where = added.created ? ` under the new group "${values.group}"` : "";
+    console.log(`${opts.dryRun ? "would add" : "added"} ${added.code}${where}`);
+    return 0;
+  }
+
+  if (command === "section") {
+    let added = null;
+    await editBody(
+      gh,
+      issue,
+      (body) => {
+        added = addSection(body, values.name, values.letter ?? null);
+        return { body: added.body, done: (b) => lineSet(b).has(added.line), result: added.letter };
+      },
+      { ...opts, show: () => console.log(`+ ${added.line}`) },
+    );
+    console.log(`${opts.dryRun ? "would add" : "added"} section ${added.letter}`);
     return 0;
   }
 

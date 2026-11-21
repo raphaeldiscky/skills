@@ -39,7 +39,8 @@ What this issue delivers, in one or two sentences, with links to the plan or des
 - A sub-item is a step of its parent, one level deep at most. It has its own code and is claimed on its own.
 - Notes are italic and follow the text: `_Open: …_`, `_exists: …; missing: …_`. The helper writes the status
   markers ([claims.md](claims.md)); don't type them by hand.
-- Add items with `add`, not by editing the body, so they get the next code.
+- Add items with `add` (`--group G` puts it under `### G`, made if missing) and sections with `section`, not by
+  editing the body, so they get the next code and letter.
 
 ## Codes
 

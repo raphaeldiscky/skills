@@ -5,6 +5,7 @@ import { test } from "node:test";
 
 import {
   addItem,
+  addSection,
   addNote,
   assignCodes,
   cancel,
@@ -238,6 +239,28 @@ test("add puts a coded item at the end of the section and leaves the rest alone"
   assert.equal(addItem("## Empty\n\nText", 0, "First").body, "## Empty\n- [ ] `E1` First\n\nText");
 });
 
+test("add puts an item in a ### group, making the group at the end of the section when missing", () => {
+  const body = ["## D. Design", "", "- [ ] `D1` One", "", "### Run 1", "", "- [ ] `D2` Two", "", "## B. Backend", "- [ ] `B1` Api"].join("\n");
+  const first = addItem(body, 0, "Three", "run 1");
+  assert.equal(first.created, false);
+  assert.match(first.body, /`D2` Two\n- \[ \] `D3` Three\n\n## B\. Backend/);
+  const second = addItem(first.body, 0, "Four", "Run 2");
+  assert.equal(second.created, true);
+  assert.match(second.body, /`D3` Three\n\n### Run 2\n\n- \[ \] `D4` Four\n\n## B\. Backend/);
+  assert.match(addItem(second.body, 0, "Five", "Run 2").body, /`D4` Four\n- \[ \] `D5` Five\n/);
+});
+
+test("section adds a lettered heading at the end and refuses a letter in use", () => {
+  const body = "## D. Design\n- [ ] `D1` One\n- [ ] `X4` Moved in\n";
+  const { body: next, letter } = addSection(body, "Verification before release");
+  assert.equal(letter, "V");
+  assert.ok(next.endsWith("`X4` Moved in\n\n## V. Verification before release"));
+  assert.equal(addSection(body, "Deploy").letter, "A", "D belongs to Design");
+  assert.equal(addSection(body, "Ops", "q").letter, "Q");
+  assert.throws(() => addSection(body, "Extras", "X"), /letter X is already used/);
+  assert.throws(() => addSection(body, ""), /--name/);
+});
+
 const ev = (id, key, session, action) => ({
   id,
   created_at: `t${id}`,
@@ -373,6 +396,17 @@ test("main: a lost write is reapplied with a fresh code, so two writers never sh
       ["D2", "Mine"],
     ],
   );
+});
+
+test("main: section and add --group print one line each", async () => {
+  const gh = new FakeGitHub(codeAll(SECTIONS).body);
+  assert.deepEqual(await capture(() => run(gh, "A", "section", "--name", "Verification")), ["added section V"]);
+  assert.deepEqual(await capture(() => run(gh, "A", "add", "--section", "V", "--group", "Run 1", "--text", "Smoke test")), [
+    'added V1 under the new group "Run 1"',
+  ]);
+  assert.deepEqual(await capture(() => run(gh, "A", "add", "--section", "V", "--group", "Run 1", "--text", "Load test")), ["added V2"]);
+  assert.ok(gh.text.endsWith("## V. Verification\n\n### Run 1\n\n- [ ] `V1` Smoke test\n- [ ] `V2` Load test"), gh.text);
+  assert.deepEqual(formatProblems(gh.text.replace("Intro line\n", "")), []);
 });
 
 test("main: list, show and next print short lines; --dry-run changes nothing", async () => {
