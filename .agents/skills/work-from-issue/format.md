@@ -44,5 +44,7 @@ What this issue delivers, in one or two sentences, with links to the plan or des
 ## Codes
 
 - Codes never change and are never reused, even when an item moves to another section or closes.
+- `ids` turns a numbered heading (`## 2. Name`) into a lettered one (`## P. Name`) and rewrites `§2` in the issue to
+  `§P`. It prints the mapping; references outside the issue keep the old number.
 - A new code takes its section's letter and the next number for that letter in the whole issue.
 - Name items by code everywhere else: `#42 D3` in commits, PRs, comments and to the user.

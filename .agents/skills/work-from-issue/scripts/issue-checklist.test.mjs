@@ -109,13 +109,33 @@ test("section letters come from the heading, skip taken letters, and ### inherit
   );
   assert.match(body, /^### 5a\. Dashboard states\n {2}- \[ \] `T2` Empty state$/m);
   assert.match(body, /^- \[x\] `E1` Fixed bug \(#12; checked\)$/m);
-  assert.deepEqual(codeAll(body), { body, codes: [], headings: 0 }, "a second pass changes nothing");
+  assert.deepEqual(codeAll(body), { body, codes: [], headings: 0, renamed: [], refs: 0 }, "a second pass changes nothing");
   assert.ok(fullyCoded(body));
   assert.ok(!fullyCoded(SECTIONS));
   assert.equal(pickLetter("Intro", new Set(["I"])), "A");
   assert.equal(pickLetter("", new Set(["A", "B"])), "C");
   assert.equal(pickLetter("3a. Backends", new Set()), "B");
   assert.equal(summarizeCodes(codes), "D1, P1, F1, T1–T2, E1");
+});
+
+test("ids rewrites § references to renamed sections and leaves the rest", () => {
+  const body = [
+    "Decisions are in §2; layout in §3a; §12 and §2b are not sections.",
+    "## 1. Design review",
+    "- [ ] Follows §2.",
+    "## 2. Product decisions",
+    "- [ ] Waits on §1 (see §2, §3a)",
+    "### 3a. Subgroup",
+    "  - [ ] Under §2",
+  ].join("\n");
+  const { body: next, renamed, refs } = codeAll(body);
+  assert.deepEqual(renamed, ["§1→§D", "§2→§P"]);
+  assert.equal(refs, 5);
+  assert.equal(next.split("\n")[0], "Decisions are in §P; layout in §3a; §12 and §2b are not sections.");
+  assert.match(next, /`D1` Follows §P\.$/m);
+  assert.match(next, /`P1` Waits on §D \(see §P, §3a\)$/m);
+  assert.match(next, /^### 3a\. Subgroup$/m);
+  assert.match(next, /`P2` Under §P$/m);
 });
 
 test("a heading's own letter wins and is never given to another section", () => {
@@ -380,6 +400,6 @@ test("main: list, show and next print short lines; --dry-run changes nothing", a
 
   const fresh = new FakeGitHub(BODY);
   const ids = await capture(() => run(fresh, "A", "ids", "--dry-run"));
-  assert.deepEqual(ids, ["would code 5 items: D1–D5; lettered 1 headings"]);
+  assert.deepEqual(ids, ["would code 5 items: D1–D5; lettered 1 headings (§1→§D)"]);
   assert.equal(fresh.text, BODY);
 });

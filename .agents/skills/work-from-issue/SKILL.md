@@ -17,8 +17,10 @@ The helper is `scripts/issue-checklist.mjs` (Node, over `gh`). Call it by its ab
 project's repo; pass `--repo owner/name` when the issue lives elsewhere. `--dry-run` shows a change without making
 it. The protocol is in [claims.md](claims.md).
 
-**Never read the issue body yourself** (`gh issue view`, the API, the browser): a checklist issue runs to hundreds of
-long lines. The helper prints one short line per item; `show` gives one item in full.
+**The helper is the only way in.** Read and change a checklist issue only through its commands. Never use
+`gh issue view` or `gh issue edit`, a `gh api` call on the issue or its comments, or the browser: a checklist issue
+runs to hundreds of long lines, and a hand edit can drop another session's change. The helper prints one short line
+per item; `show` gives one item in full. When it has no command for what you need, stop and ask the user.
 
 ```bash
 CL=<this skill's folder>/scripts/issue-checklist.mjs
@@ -65,8 +67,8 @@ node $CL check --issue 42                      # where the issue departs from fo
 ## Always
 
 - One item per claim. Claim each item you will touch, and only those.
-- Change the issue only through the helper. New work found on the way becomes an item with `add`, never a pasted
-  body: another session's edit in between would be lost.
+- New work found on the way becomes an item with `add`. The rest of the issue (its intro, headings and prose) is
+  the user's to edit.
 - A completed item names its PR. `--no-pr` is only for an item closed without a code change (already built, or a
   decision), and its note names the evidence.
 - Report what you claimed, linked, completed, cancelled, released or added, by code, with the issue link.

@@ -183,7 +183,7 @@ export function findItem(items, sel) {
 
 export function findByCode(items, code) {
   const hits = items.filter((it) => it.code === code);
-  if (hits.length > 1) throw new Refusal(`${hits.length} items share code ${code}; fix the issue by hand`);
+  if (hits.length > 1) throw new Refusal(`${hits.length} items share code ${code}; ask the user to fix them in the issue`);
   return hits[0] ?? null;
 }
 
@@ -283,7 +283,7 @@ export function addItem(body, section, text) {
 export function codeAll(body) {
   const items = parseItems(body);
   const dupes = duplicateCodes(items);
-  if (dupes.length) throw new Refusal(`codes used twice: ${dupes.join(", ")}; fix the issue by hand`);
+  if (dupes.length) throw new Refusal(`codes used twice: ${dupes.join(", ")}; ask the user to fix them in the issue`);
   const targets = items.filter((it) => !it.code);
   const codes = assignCodes(items, targets);
   let next = body;
@@ -292,7 +292,29 @@ export function codeAll(body) {
   const letters = sectionLetters(coded);
   const headings = coded.sections.filter((s) => !s.letter && letters.has(s.id));
   for (const s of headings) next = replaceLine(next, s.index, `${s.hashes} ${letters.get(s.id)}. ${s.name}`);
-  return { body: next, codes: targets.map((it) => codes.get(it.index)), headings: headings.length };
+  const renamed = new Map();
+  for (const s of headings) {
+    const number = /^(\d+)\.\s/.exec(s.title)?.[1];
+    if (number) renamed.set(number, letters.get(s.id));
+  }
+  let refs = 0;
+  const headingLines = new Set(coded.sections.map((s) => s.index));
+  const lines = next.split("\n").map((line, i) =>
+    headingLines.has(i)
+      ? line
+      : line.replace(/§(\d+)(?![\dA-Za-z])/g, (ref, n) => {
+          if (!renamed.has(n)) return ref;
+          refs++;
+          return `§${renamed.get(n)}`;
+        }),
+  );
+  return {
+    body: lines.join("\n"),
+    codes: targets.map((it) => codes.get(it.index)),
+    headings: headings.length,
+    renamed: [...renamed].map(([n, l]) => `§${n}→§${l}`),
+    refs,
+  };
 }
 
 // True when every item has a unique code and every section with items names its letter.
@@ -606,9 +628,9 @@ export async function main(argv, env = process.env, gh = null, settleMs = 3000) 
       gh,
       issue,
       (body) => {
-        const { body: next, codes, headings } = codeAll(body);
-        if (!codes.length && !headings) return null;
-        return { body: next, done: fullyCoded, result: { codes, headings } };
+        const coded = codeAll(body);
+        if (!coded.codes.length && !coded.headings) return null;
+        return { body: coded.body, done: fullyCoded, result: coded };
       },
       {
         ...opts,
@@ -620,7 +642,9 @@ export async function main(argv, env = process.env, gh = null, settleMs = 3000) 
     if (!result) console.log("every item and section is coded");
     else {
       const items = result.codes.length ? `${result.codes.length} items: ${summarizeCodes(result.codes)}` : "no items";
-      console.log(`${opts.dryRun ? "would code" : "coded"} ${items}; lettered ${result.headings} headings`);
+      const renamed = result.renamed.length ? ` (${result.renamed.join(", ")})` : "";
+      console.log(`${opts.dryRun ? "would code" : "coded"} ${items}; lettered ${result.headings} headings${renamed}`);
+      if (result.refs) console.log(`rewrote ${result.refs} § references in the issue; references outside it keep the old numbers`);
     }
     return 0;
   }
