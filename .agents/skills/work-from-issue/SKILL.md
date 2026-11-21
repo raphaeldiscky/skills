@@ -2,6 +2,7 @@
 name: work-from-issue
 description: Works on a feature from a GitHub issue checklist without colliding with other agent sessions. The issue is the source of truth. A session claims an item under its session id before touching code, checks the codebase in case it's already built, asks before any database or backend design, keeps the Claude Design canvas and design system ahead of frontend code, links its PR, and records the item as completed (with the PR number) or cancelled (with a note). Use when asked to implement, pick up, continue or update an item from an issue's checklist, to see which items are free or taken, or to claim, release, complete or cancel one.
 argument-hint: "[issue number] [item text]"
+disable-model-invocation: true
 ---
 
 # Work from an issue checklist
