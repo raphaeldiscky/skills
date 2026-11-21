@@ -49,34 +49,55 @@ export function commands(line) {
   return out;
 }
 
-const PREFIX = new Set(["env", "command", "exec", "time", "sudo", "nohup", "xargs"]);
+// Words that can stand before the command itself; the value-taking ones also skip their value.
+const PREFIX = new Set(["env", "command", "exec", "time", "sudo", "nohup", "xargs", "nice", "stdbuf", "!", "{", "(",
+  "if", "then", "else", "elif", "do", "while", "until"]);
+const PREFIX_WITH_VALUE = new Set(["timeout"]);
+const SHELLS = new Set(["bash", "sh", "zsh", "dash"]);
+const API_VALUE_FLAGS = new Set(["-H", "--header", "--hostname", "-q", "--jq", "-t", "--template", "--cache", "-p",
+  "--preview"]);
 const BODY_FIELD = /^body(=|$)/;
 const ISSUE = /(^|\/)repos\/[^/]+\/[^/]+\/issues\/\d+\/?$/;
 const COMMENT = /(^|\/)repos\/[^/]+\/[^/]+\/issues\/comments\/\d+\/?$/;
-const MUTATION = /\b(updateIssue|updateIssueComment|deleteIssueComment)\b/;
+const MUTATION = /\b(updateIssue|updateIssueComment|deleteIssueComment)\b/i;
+
+// A field flag, attached (-fbody=x, --field=body=x) or not, as [flag, value or null when the next word holds it].
+function field(a) {
+  const m = /^(-f|-F|--field|--raw-field)(=?)(.*)$/.exec(a);
+  if (!m) return null;
+  if (m[1].startsWith("--") && !m[2] && m[3]) return null;
+  return m[3] ? m[3] : null;
+}
 
 function ghApiWrite(args) {
   let method = null;
-  let path = null;
-  let sendsBody = false;
+  const paths = [];
+  const values = [];
+  let input = false;
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
-    const value = () => args[++i] ?? "";
-    if (a === "-X" || a === "--method") method = value().toUpperCase();
+    const next = () => args[++i] ?? "";
+    if (a === "-X" || a === "--method") method = next().toUpperCase();
     else if (a.startsWith("--method=")) method = a.slice(9).toUpperCase();
     else if (/^-X./.test(a)) method = a.slice(2).toUpperCase();
-    else if (["-f", "-F", "--field", "--raw-field"].includes(a)) sendsBody ||= BODY_FIELD.test(value());
-    else if (/^--(raw-)?field=/.test(a)) sendsBody ||= BODY_FIELD.test(a.slice(a.indexOf("=") + 1));
+    else if (/^(-f|-F|--field|--raw-field)$/.test(a)) values.push(next());
+    else if (field(a) !== null) values.push(field(a));
     else if (a === "--input" || a.startsWith("--input=")) {
-      if (a === "--input") value();
-      sendsBody = true;
-    } else if (!a.startsWith("-") && path === null) path = a;
+      if (a === "--input") next();
+      input = true;
+    } else if (API_VALUE_FLAGS.has(a)) next();
+    else if (!a.startsWith("-")) paths.push(a);
   }
-  if (path === "graphql") return args.some((a) => MUTATION.test(a)) ? "a GraphQL issue mutation" : null;
-  if (!path || method === "GET") return null;
-  if (ISSUE.test(path) && sendsBody) return `a new body for ${path}`;
-  if (COMMENT.test(path) && (method === "PATCH" || method === "DELETE" || sendsBody))
-    return `${method ?? "a write"} on comment ${path}`;
+  if (paths.includes("graphql")) {
+    if (input || values.some((v) => /^\w+=@/.test(v))) return "a GraphQL query read from a file or stdin";
+    return values.some((v) => MUTATION.test(v)) ? "a GraphQL issue mutation" : null;
+  }
+  if (method === "GET") return null;
+  const sendsBody = input || values.some((v) => BODY_FIELD.test(v));
+  const issue = paths.find((p) => ISSUE.test(p));
+  if (issue && sendsBody) return `a new body for ${issue}`;
+  const comment = paths.find((p) => COMMENT.test(p));
+  if (comment && (method === "PATCH" || method === "DELETE" || sendsBody)) return `${method ?? "a write"} on comment ${comment}`;
   return null;
 }
 
@@ -84,10 +105,24 @@ function ghApiWrite(args) {
 export function refusal(command) {
   for (const words of commands(command)) {
     let at = 0;
-    while (at < words.length && (PREFIX.has(words[at]) || /^\w+=/.test(words[at]))) at++;
-    if (words[at] !== "gh" && !words[at]?.endsWith("/gh")) continue;
+    for (;;) {
+      const w = words[at];
+      if (PREFIX.has(w) || /^\w+=/.test(w ?? "") || /^[0-9]*[<>]/.test(w ?? "")) at++;
+      else if (PREFIX_WITH_VALUE.has(w)) at += 2;
+      else if (w?.startsWith("-") && at > 0) at++;
+      else break;
+    }
+    const cmd = words[at] ?? "";
+    const name = cmd.slice(cmd.lastIndexOf("/") + 1);
+    if (SHELLS.has(name)) {
+      const c = words.indexOf("-c", at);
+      const why = c > 0 && words[c + 1] ? refusal(words[c + 1]) : null;
+      if (why) return why;
+      continue;
+    }
+    if (name !== "gh") continue;
     const [group, sub, ...rest] = words.slice(at + 1);
-    if (group === "issue" && sub === "edit" && rest.some((w) => /^(-b|--body|-F|--body-file)(=|$)/.test(w)))
+    if (group === "issue" && sub === "edit" && rest.some((w) => /^(-b|-F)|^--body(-file)?(=|$)/.test(w)))
       return "gh issue edit with a new body";
     if (group === "issue" && sub === "comment" && rest.some((w) => /^--(edit|delete)-last$/.test(w)))
       return "gh issue comment editing or deleting a comment";

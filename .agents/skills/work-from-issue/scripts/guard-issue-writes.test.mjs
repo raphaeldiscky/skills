@@ -32,6 +32,20 @@ const blocked = [
   "git status && gh issue edit 42 --body x",
   "GH_REPO=acme/app gh issue edit 42 --body x",
   "printf x | xargs gh issue edit 42 --body",
+  "gh api -H 'Accept: application/json' repos/acme/app/issues/42 -X PATCH -f body=x",
+  "gh api --jq .id repos/acme/app/issues/42 --input b.json",
+  "gh api repos/acme/app/issues/42 -fbody=x",
+  "gh api repos/acme/app/issues/42 -Fbody=@b.md",
+  "gh api repos/acme/app/issues/42 --field=body=x",
+  "gh api graphql -F query=@mutation.graphql",
+  "gh api graphql --input query.json",
+  "gh api graphql -f query='mutation { UPDATEISSUE(input: {}) { clientMutationId } }'",
+  "gh issue edit 42 -b'x'",
+  "timeout 60 gh issue edit 42 --body x",
+  "if true; then gh issue edit 42 --body x; fi",
+  "{ gh issue edit 42 --body x; }",
+  "bash -c 'gh issue edit 42 --body x'",
+  "env -i GH_TOKEN=t gh api repos/acme/app/issues/42 -f body=x",
 ];
 
 const allowed = [
@@ -48,6 +62,10 @@ const allowed = [
   "gh pr edit 7 --body-file pr.md",
   "node .claude/skills/work-from-issue/scripts/issue-checklist.mjs note --issue 42 --item D3 --text 'gh api -X PATCH'",
   "echo gh issue edit 42 --body x",
+  "gh api -H 'Accept: application/json' repos/acme/app/issues/42",
+  "gh api graphql -f query='query { viewer { login } }'",
+  "bash -c 'gh issue view 42'",
+  "timeout 60 gh issue list",
 ];
 
 test("refuses every way of rewriting an issue body or editing a comment", () => {
