@@ -43,8 +43,9 @@ node $CL check --issue 42                      # where the issue departs from fo
 
 1. **Identify.** The session id is `$CLAUDE_CODE_SESSION_ID` in Claude Code; another agent passes `--session`.
    The user names the issue. With no item named, run `list` or `next` and propose free items by code. If `list`
-   says items have no code, run `ids`. When writing a new checklist issue, follow [format.md](format.md) and run
-   `ids` and `check` on it.
+   says items have no code, run `ids`. When writing a new checklist issue, start from
+   [templates/checklist-issue.md](templates/checklist-issue.md), follow [format.md](format.md), and run `ids` and
+   `check` on it.
 2. **Claim before any code.** Run `claim`.
    - Exit 2 means another session holds the item. Pick another, or ask the user. Never take an item over on your
      own.
