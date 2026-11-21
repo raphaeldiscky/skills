@@ -20,7 +20,8 @@ it. The protocol is in [claims.md](claims.md).
 **The helper is the only way in.** Read and change a checklist issue only through its commands. Never use
 `gh issue view` or `gh issue edit`, a `gh api` call on the issue or its comments, or the browser: a checklist issue
 runs to hundreds of long lines, and a hand edit can drop another session's change. The helper prints one short line
-per item; `show` gives one item in full. When it has no command for what you need, stop and ask the user.
+per item; `show` gives one item in full. When it has no command for what you need, stop and ask the user. A
+project can make the write side a hard block with the guard hook in [hook.md](hook.md).
 
 ```bash
 CL=<this skill's folder>/scripts/issue-checklist.mjs
