@@ -41,12 +41,11 @@ Until it is approved, the item stays open with a note. Never mock the missing ba
 
 ## Design first
 
-The project's design source (a Claude Design canvas, a Figma file, a design system) is the source of truth for
-every screen. It is usually linked from the project's design doc or the issue. A project with no design source skips
-this gate.
+The project's Claude Design canvas and design system artifacts are the source of truth for every screen. They are
+usually linked from the project's design doc or the issue.
 
-- **Never change frontend code before the design shows the change.** The board, or the design system for a shared
-  part, is updated first, and the user approves it.
+- **Never change frontend code before Claude Design shows the change.** The canvas, or the design system artifact for
+  a shared part, is updated first, and the user approves it.
 - **A difference between a board and the build is fixed in code,** never by editing the board to match the build.
   Change a board only when the user decides the design itself changes.
 - **With no board for the item,** design it first, then build.
