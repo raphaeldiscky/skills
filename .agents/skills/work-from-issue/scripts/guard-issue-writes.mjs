@@ -49,10 +49,6 @@ export function commands(line) {
   return out;
 }
 
-// Words that can stand before the command itself; the value-taking ones also skip their value.
-const PREFIX = new Set(["env", "command", "exec", "time", "sudo", "nohup", "xargs", "nice", "stdbuf", "!", "{", "(",
-  "if", "then", "else", "elif", "do", "while", "until"]);
-const PREFIX_WITH_VALUE = new Set(["timeout"]);
 const SHELLS = new Set(["bash", "sh", "zsh", "dash"]);
 const API_VALUE_FLAGS = new Set(["-H", "--header", "--hostname", "-q", "--jq", "-t", "--template", "--cache", "-p",
   "--preview"]);
@@ -88,7 +84,7 @@ function ghApiWrite(args) {
     } else if (API_VALUE_FLAGS.has(a)) next();
     else if (!a.startsWith("-")) paths.push(a);
   }
-  if (paths.includes("graphql")) {
+  if (paths.some((p) => p.replace(/[/?#].*$|\/+$/g, "") === "graphql" || /\/graphql\/?$/.test(p))) {
     if (input || values.some((v) => /^\w+=@/.test(v))) return "a GraphQL query read from a file or stdin";
     return values.some((v) => MUTATION.test(v)) ? "a GraphQL issue mutation" : null;
   }
@@ -101,34 +97,27 @@ function ghApiWrite(args) {
   return null;
 }
 
-// Why the command is refused, or null when it may run.
+const base = (w) => w.slice(w.lastIndexOf("/") + 1);
+
+// Why the command is refused, or null when it may run. Fails closed: every "gh" word is checked, whatever precedes it.
 export function refusal(command) {
   for (const words of commands(command)) {
-    let at = 0;
-    for (;;) {
-      const w = words[at];
-      if (PREFIX.has(w) || /^\w+=/.test(w ?? "") || /^[0-9]*[<>]/.test(w ?? "")) at++;
-      else if (PREFIX_WITH_VALUE.has(w)) at += 2;
-      else if (w?.startsWith("-") && at > 0) at++;
-      else break;
-    }
-    const cmd = words[at] ?? "";
-    const name = cmd.slice(cmd.lastIndexOf("/") + 1);
-    if (SHELLS.has(name)) {
-      const c = words.indexOf("-c", at);
-      const why = c > 0 && words[c + 1] ? refusal(words[c + 1]) : null;
-      if (why) return why;
-      continue;
-    }
-    if (name !== "gh") continue;
-    const [group, sub, ...rest] = words.slice(at + 1);
-    if (group === "issue" && sub === "edit" && rest.some((w) => /^(-b|-F)|^--body(-file)?(=|$)/.test(w)))
-      return "gh issue edit with a new body";
-    if (group === "issue" && sub === "comment" && rest.some((w) => /^--(edit|delete)-last$/.test(w)))
-      return "gh issue comment editing or deleting a comment";
-    if (group === "api") {
-      const why = ghApiWrite([sub, ...rest].filter((w) => w !== undefined));
-      if (why) return `gh api ${why}`;
+    for (let i = 0; i < words.length; i++) {
+      if (SHELLS.has(base(words[i]))) {
+        const c = words.findIndex((w, j) => j > i && /^-[A-Za-z]*c[A-Za-z]*$/.test(w));
+        const why = c > 0 && words[c + 1] ? refusal(words[c + 1]) : null;
+        if (why) return why;
+      }
+      if (base(words[i]) !== "gh") continue;
+      const [group, sub, ...rest] = words.slice(i + 1);
+      if (group === "issue" && sub === "edit" && rest.some((w) => /^(-b|-F)|^--body(-file)?(=|$)/.test(w)))
+        return "gh issue edit with a new body";
+      if (group === "issue" && sub === "comment" && rest.some((w) => /^--(edit|delete)-last$/.test(w)))
+        return "gh issue comment editing or deleting a comment";
+      if (group === "api") {
+        const why = ghApiWrite([sub, ...rest].filter((w) => w !== undefined));
+        if (why) return `gh api ${why}`;
+      }
     }
   }
   return null;

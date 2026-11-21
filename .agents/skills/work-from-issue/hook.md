@@ -44,6 +44,8 @@ Check it in a session: `gh issue edit 1 --body x` must come back blocked, and a 
 
 - It reads Bash commands only. It doesn't see GitHub MCP tools, the browser, or edits people make on github.com.
   The helper's re-read and retry still protects claims from those.
+- It fails closed: every `gh` word on the line is checked, whatever comes before it (`timeout`, `sudo`, `bash -c`),
+  so `echo gh issue edit 1 --body x` is refused too.
 - It parses the command line, not what runs: a script file, `eval` or an alias that edits an issue gets through.
 - It blocks writes, not reads. The "never read the issue body" rule stays guidance, so reading an ordinary issue
   still works.

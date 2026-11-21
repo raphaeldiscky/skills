@@ -45,6 +45,12 @@ const blocked = [
   "if true; then gh issue edit 42 --body x; fi",
   "{ gh issue edit 42 --body x; }",
   "bash -c 'gh issue edit 42 --body x'",
+  "bash -lc 'gh issue edit 42 --body x'",
+  "nice -n 10 gh issue edit 42 --body x",
+  "sudo -u me gh api repos/acme/app/issues/42 -f body=x",
+  "echo gh issue edit 42 --body x",
+  "gh api /graphql -f query='mutation { updateIssue(input: {}) { clientMutationId } }'",
+  "gh api https://api.github.com/graphql --input q.json",
   "env -i GH_TOKEN=t gh api repos/acme/app/issues/42 -f body=x",
 ];
 
@@ -61,7 +67,6 @@ const allowed = [
   "gh api graphql -f query='{ repository(owner: \"a\", name: \"b\") { issue(number: 1) { body } } }'",
   "gh pr edit 7 --body-file pr.md",
   "node .claude/skills/work-from-issue/scripts/issue-checklist.mjs note --issue 42 --item D3 --text 'gh api -X PATCH'",
-  "echo gh issue edit 42 --body x",
   "gh api -H 'Accept: application/json' repos/acme/app/issues/42",
   "gh api graphql -f query='query { viewer { login } }'",
   "bash -c 'gh issue view 42'",
