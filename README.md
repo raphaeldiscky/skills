@@ -38,23 +38,24 @@ resources only when needed. Add a row to this table when you add a skill.
 ## Installing the skills
 
 Install them with the [`skills` CLI](https://github.com/vercel-labs/skills). It finds every skill under
-`.agents/skills/` and links it into your agent's skills folder.
+`.agents/skills/` in this repository. Install per project, so each repository pins the skills it uses:
 
 ```bash
 # List the skills in this repository
 npx skills add raphaeldiscky/skills --list
 
-# Install one skill for your user, in Claude Code
-npx skills add raphaeldiscky/skills --skill work-from-issue --global --agent claude-code
+# From your project's root: install one skill into this project, for Claude Code
+npx skills add raphaeldiscky/skills --skill work-from-issue --agent claude-code
 
-# Install every skill for your user, in every agent the CLI detects
-npx skills add raphaeldiscky/skills --skill '*' --global
-
-# Update installed skills
+# Update the project's skills later
 npx skills update
 ```
 
-- Leave out `--global` to install into the current project instead.
+- The CLI copies the skill into the agent's skills folder (`.claude/skills/<name>` for Claude Code) and records
+  its source and commit in `skills-lock.json` at the project root. Commit both, so everyone working on the
+  repository gets the same version, and change the skill here rather than in the copy.
+- Optional, for every project on your machine: add `--global`, for example
+  `npx skills add raphaeldiscky/skills --skill '*' --global`.
 - Pin a release tag or a commit with `raphaeldiscky/skills@<ref>`.
 - Install from `main`. The CLI can't read a branch name that contains a slash (`feat/…`) in a GitHub URL, so to try
   an unmerged skill, install it from a local clone: `npx skills add ./skills --skill <name>`.
