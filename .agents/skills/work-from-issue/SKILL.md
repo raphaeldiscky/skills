@@ -1,6 +1,6 @@
 ---
 name: work-from-issue
-description: Works on a feature from a GitHub issue checklist without colliding with other agent sessions. The issue is the source of truth, and every item has a stable code such as `D3`. A session claims an item under its session id before touching code, checks the codebase in case it's already built, asks before any database or backend design, keeps the Claude Design canvas and design system ahead of frontend code, links its PR, and records the item as completed (with the PR number) or cancelled (with a note). Use when asked to implement, pick up, continue or update an item from an issue's checklist, to see which items are free or taken, to add an item, or to claim, release, complete or cancel one.
+description: Works on a feature from a GitHub issue checklist without colliding with other agent sessions. The issue is the source of truth, and every item has a stable code such as `D3`. A session claims an item under its session id before touching code, checks the codebase in case it's already built, asks before any database or backend design, keeps the project's design (canvas, Figma, design system) ahead of frontend code, links its PR, and records the item as completed (with the PR number) or cancelled (with a note). Use when asked to implement, pick up, continue or update an item from an issue's checklist, to see which items are free or taken, to add an item, or to claim, release, complete or cancel one.
 argument-hint: "[issue number] [item code or text]"
 ---
 
@@ -52,8 +52,8 @@ node $CL check --issue 42                      # where the issue departs from fo
 4. **Pass the gates** ([gates.md](gates.md)).
    - **Database or backend design:** before a migration, a schema, an API or event contract, a service's
      behaviour or seed data, ask the user. Ask once per item, name what changes, and wait for a yes.
-   - **Frontend:** the project's Claude Design canvas and design system are the source of truth. Never change
-     frontend code before the canvas shows the change and the user has approved it.
+   - **Frontend:** the project's design source (canvas, Figma, design system) is the source of truth. Never change
+     frontend code before the design shows the change and the user has approved it.
 5. **Build** under the project's own rules: its branch, commits, tests, and PR conventions.
 6. **Link the PR as soon as it opens:** `pr --number N`. Other sessions see where the work is.
 7. **Close the item when the implementation is complete:**
