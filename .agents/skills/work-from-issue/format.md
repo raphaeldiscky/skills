@@ -1,7 +1,9 @@
 # Issue layout
 
 One shape for every checklist issue, so people can scan it and the helper can parse it. `check` reports where an
-issue departs from it; `ids` adds the codes and the heading letters.
+issue departs from it; `ids` adds the codes and the heading letters. A starting issue is in
+[templates/checklist-issue.md](templates/checklist-issue.md); copy it to `.github/ISSUE_TEMPLATE/` to offer it on
+GitHub's New issue page.
 
 ```markdown
 What this issue delivers, in one or two sentences, with links to the plan or design.
