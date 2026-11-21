@@ -134,7 +134,7 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
   if (why) {
     console.error(
       `Blocked: ${why}. Checklist issues change only through the work-from-issue helper (${HELPER}): ` +
-        "claim, pr, note, complete, cancel, release, add, ids. If it has no command for this, ask the user.",
+        "claim, pr, note, complete, cancel, release, add (--group), section, ids. If it has no command for this, ask the user.",
     );
     process.exit(2);
   }

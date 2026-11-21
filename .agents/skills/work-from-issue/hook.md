@@ -13,7 +13,8 @@ another session's claim or code.
 | `gh api graphql` with `updateIssue`, `updateIssueComment` or `deleteIssueComment` | the helper itself (it calls `gh` from Node)         |
 
 A refused command exits 2. Claude Code shows the reason to the session, which points it at the helper or tells it to
-ask the user.
+ask the user. Items, `###` groups and sections are added through the helper (`add`, `add --group`, `section`); only
+the issue's intro and prose need a person.
 
 ## Setup
 
