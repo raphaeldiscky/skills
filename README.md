@@ -33,8 +33,34 @@ Skills provide reusable workflows for particular tasks.
 | [Work from issue](.agents/skills/work-from-issue/SKILL.md) | Claim an issue checklist item under the session id, check it is not already built, ask before database or backend design, design in Claude Design before frontend code, then link the PR and mark the item completed or cancelled. Includes a `gh` helper so parallel sessions never take one item twice. | You implement, pick up, or update an item from an issue checklist, especially with several agent sessions running. |
 
 Each skill lives in `.agents/skills/<skill-name>/SKILL.md`, with supporting
-resources only when needed. Add a row to this table when you add a skill. Skill discovery and installation depend on the agent.
-For one example, see the [Codex skill documentation](https://developers.openai.com/codex/skills).
+resources only when needed. Add a row to this table when you add a skill.
+
+## Installing the skills
+
+Install them with the [`skills` CLI](https://github.com/vercel-labs/skills). It finds every skill under
+`.agents/skills/` and links it into your agent's skills folder.
+
+```bash
+# List the skills in this repository
+npx skills add raphaeldiscky/skills --list
+
+# Install one skill for your user, in Claude Code
+npx skills add raphaeldiscky/skills --skill work-from-issue --global --agent claude-code
+
+# Install every skill for your user, in every agent the CLI detects
+npx skills add raphaeldiscky/skills --skill '*' --global
+
+# Update installed skills
+npx skills update
+```
+
+- Leave out `--global` to install into the current project instead.
+- Pin a release tag or a commit with `raphaeldiscky/skills@<ref>`.
+- Install from `main`. The CLI can't read a branch name that contains a slash (`feat/…`) in a GitHub URL, so to try
+  an unmerged skill, install it from a local clone: `npx skills add ./skills --skill <name>`.
+- Other agents can read the skill folders directly; see, for example, the
+  [Codex skill documentation](https://developers.openai.com/codex/skills).
+- The rules aren't skills. Copy them as described in [Using the rules](#using-the-rules).
 
 ## Using the rules
 
@@ -67,6 +93,7 @@ See the [official Claude Code instructions and rules documentation](https://code
 
 ## Prerequisites
 
+- Installing with the `skills` CLI needs Node.js (`npx`); the `work-from-issue` helper needs Node.js and the authenticated `gh` CLI.
 - GitHub workflow rules assume Git and the authenticated `gh` CLI are available.
 - Stacked PR rules use the `github/gh-stack` extension; setup is included in that rule.
 - Worktree rules work with any way of copying ignored files; a helper such as
