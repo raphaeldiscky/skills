@@ -130,6 +130,9 @@ func raceWins[S ~string](m Machine[S], from, to S) int {
 `moveTwiceConcurrently` starts two goroutines that call `d.Move`, collects both results over a channel, fails on
 any error, and returns how many moved.
 
+Each racer needs its own database connection, so give the driver a pool. A single client or session runs its
+queries one at a time, so the race would never happen and the test would pass on unguarded code.
+
 Mapping the repository onto `Move`:
 
 - A repository with one method per transition (`Pay`, `Void`) gets a `Move` that switches on the target.
