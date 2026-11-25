@@ -13,6 +13,8 @@ from it: a list of cases, a table, a property, a spec. A test that only restates
 
 - Read the project's test conventions, ADRs, helpers and CI before adding anything. Use its runner, helpers,
   file names and build tags. A project rule beats this skill.
+- If the project already has a helper or library for a strategy, call it. The code in these files shows how
+  such a helper works; it is not code to copy into each service.
 - A new test library or tool (property-based, Pact, Quint, a mutation tool) is a dependency: propose it and
   ask before adding it.
 
