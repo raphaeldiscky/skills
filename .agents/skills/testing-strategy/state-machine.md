@@ -139,9 +139,6 @@ Mapping the repository onto `Move`:
 - A method that returns a sentinel error when the guard refuses maps that sentinel to `(false, nil)`. Any other
   error fails the test.
 
-The same loop works in other languages: Hypothesis `RuleBasedStateMachine`, fast-check `fc.commands` with
-`asyncModelRun`, proptest-state-machine, jqwik `ActionChain` ([tools.md](tools.md)).
-
 ## When it is red
 
 A red run means the code and its table disagree. Decide which is wrong and fix that, never the test. The tests

@@ -1,6 +1,6 @@
 ---
 name: testing-strategy
-description: Use when deciding which tests a change needs, writing them, or judging whether a test suite is strong enough, in any language. Triggers include a contract with several implementations (gateways, providers, adapters, a fake), a stored status that moves (order, invoice, job), a pure rule (round trip, money split, idempotency key), untrusted input reaching a parser, rendered output (templates, generated docs), an API other teams or apps consume, a protocol that crosses services, races writers or is delivered at least once or out of order, and your own distributed runtime. Also for flaky, mock-heavy, or high-coverage-but-weak suites.
+description: Use when deciding which tests a change needs, writing them, or judging whether a test suite is strong enough, in Go. Triggers include a contract with several implementations (gateways, providers, adapters, a fake), a stored status that moves (order, invoice, job), a pure rule (round trip, money split, idempotency key), untrusted input reaching a parser, rendered output (templates, generated docs), an API other teams or apps consume, a protocol that crosses services, races writers or is delivered at least once or out of order, and your own distributed runtime. Also for flaky, mock-heavy, or high-coverage-but-weak suites.
 ---
 
 # Testing strategy
@@ -35,7 +35,7 @@ Each row names the trigger to look for in the code. "Skip when" names what is en
 | **Deterministic simulation** | You own a runtime whose correctness depends on timing, network or disk faults | Replicated log or consensus; a custom queue, scheduler or storage engine; a multi-service flow run in one process | An app on a managed database and broker whose protocol has a spec | [simulation.md](simulation.md) |
 | **Judging the suite** | You need to know if the tests would catch a change | Reviewing a PR's new tests; a critical module with high coverage and escaped bugs; before refactoring agent-written code | Generated code, glue, one-off scripts | [judging-tests.md](judging-tests.md) |
 
-Tools for each strategy in Go, Python, TypeScript, Rust and Java: [tools.md](tools.md).
+Go tools for each strategy: [tools.md](tools.md).
 
 ## 2. Escalation tiers
 

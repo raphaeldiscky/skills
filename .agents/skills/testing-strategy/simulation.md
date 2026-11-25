@@ -53,4 +53,3 @@ replaying that seed should fail the same way.
 - **Antithesis** (commercial): a deterministic hypervisor that runs unmodified services.
 - **Jepsen:** black-box tests on a real cluster with fault injection and a history checker. It is not
   deterministic, but it needs no changes to the code.
-- Rust has DST frameworks: turmoil and madsim ([tools.md](tools.md)).

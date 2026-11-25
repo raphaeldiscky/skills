@@ -1,26 +1,21 @@
-# Tools by language
+# Tools for Go
 
 Use what the project already has first. A new tool is a dependency, so propose it before adding it. The names
 below were checked in November 2026. Confirm the current version and API in each tool's docs before relying on a
 flag.
 
-| Strategy | Go | Python | TypeScript / JS | Rust | Java / Kotlin |
-| --- | --- | --- | --- | --- | --- |
-| Real database in a container | testcontainers-go | testcontainers-python | testcontainers (node) | testcontainers | Testcontainers |
-| Property-based | rapid (`pgregory.net/rapid`) | Hypothesis | fast-check | proptest | jqwik |
-| Stateful / model-based | rapid `T.Repeat` | Hypothesis `RuleBasedStateMachine` | fast-check `fc.commands` + `modelRun` / `asyncModelRun` | proptest-state-machine | jqwik `ActionChain` |
-| Fuzzing | `go test -fuzz` (built in) | Atheris | Jazzer.js (open-source maintenance stopped; check its status) | cargo-fuzz | Jazzer |
-| Golden / snapshot | gotest.tools `golden`, goldie | syrupy | Vitest / Jest snapshots, `toMatchFileSnapshot` | insta | ApprovalTests.Java |
-| Mutation | gremlins (check diff support in your version) | mutmut, Cosmic Ray | StrykerJS | cargo-mutants (`--in-diff`) | PIT (pitest) |
-| Consumer-driven contracts | pact-go | pact-python | pact-js | pact_consumer (pact-rust) | pact-jvm |
-| Deterministic simulation | no standard library: in-process services with a controlled broker and clock, or Antithesis | — | — | turmoil, madsim | — |
-
-These tools don't depend on the code's language:
-
-| Need | Tool |
-| --- | --- |
-| OpenAPI conformance from the spec | Schemathesis (property-based, built on Hypothesis). Dredd is archived |
-| Breaking-change diff of an OpenAPI spec | oasdiff |
-| Formal spec + traces | Quint (writes ITF), TLA+ with TLC or Apalache (Apalache writes ITF), P |
-| Reading ITF traces | itf-go (Go); quint-connect (Rust, with TypeScript and Elixir ports); or a small JSON decoder |
-| Black-box fault injection on a cluster | Jepsen |
+| Strategy | Tool | Notes |
+| --- | --- | --- |
+| Unit and integration tests | `testing`, testify | Integration tests behind a build tag (`-tags integration`) so the fast run needs no Docker |
+| Real database in a container | testcontainers-go | One shared fixtures package (Postgres and the other backing services) that every service imports |
+| Property-based | rapid (`pgregory.net/rapid`) | Keep it in `_test.go` files; a failure is saved under `testdata/rapid/`, replay with `-rapid.failfile=<path>` |
+| Stateful / model-based | rapid `T.Repeat` | Wrap the loop in one shared helper ([state-machine.md](state-machine.md)) and call it from each service |
+| Fuzzing | `go test -fuzz` (built in) | The corpus lives in `testdata/fuzz/<FuzzName>/`; commit the inputs that found bugs |
+| Golden files | a `-update` flag and `testdata/golden/` | No library needed ([baseline.md](baseline.md#golden-files)) |
+| Formal spec + traces | Quint (npm `@informalsystems/quint`), writes ITF | Run it from a task: typecheck, test, run with invariants, then `--mbt` traces |
+| Reading ITF traces | a small decoder package, or itf-go | Replay each trace step by step against the real code |
+| Mutation | gremlins (check diff support in your version) | Not a CI gate; scope it to changed lines ([judging-tests.md](judging-tests.md)) |
+| Consumer-driven contracts | pact-go | Only when consumers ship apart from the provider ([contract-testing.md](contract-testing.md)) |
+| OpenAPI conformance and breaking changes | Schemathesis (runs against the server), oasdiff | Language-neutral; they read the spec |
+| Deterministic simulation | no standard library: in-process services with a controlled broker and clock, or Antithesis | [simulation.md](simulation.md) |
+| Black-box fault injection on a cluster | Jepsen | Not deterministic; needs no code changes |
